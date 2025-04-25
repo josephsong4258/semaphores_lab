@@ -7,11 +7,42 @@
 
 # A makefile determines which parts of the program need to be recompiled
 
+# This makefile is based off this resource - # https://www.cs.colby.edu/maxwell/courses/tutorials/maketutor/
 # First step, set the default C compiler
 CC = gcc
 
+# places object files into obj folder
+ODIR = obj
 # CFLAGS variable sets compiler flags for gcc
 # -g gives debug information, -O0 makes sure the code doesn't get automatically optimized?
 CFLAGS = -g -O0
 
-#In this section I'll list the files that are part of the project
+# Don't know which libraries we're using yet so I'll leave blank
+LIBS = -
+
+# Maps all header files to DEPS
+_DEPS = dungeon_info.h dungeon_settings.h
+DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
+
+# Maps object files to OBJ
+_OBJ = game.o barbarian.o wizard.o rogue.o
+OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
+
+# compiles .c to object file
+$(ODIR)/%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+#links game executable to dungeon.o
+game: $(ODIR)/game.o dungeon.o
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
+#Make character executables
+barbarian: $(ODIR)/barbarian.o
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
+wizard: $(ODIR)/wizard.o
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
+rogue: $(ODIR)/rogue.o
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
