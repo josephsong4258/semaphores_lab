@@ -1,5 +1,6 @@
 #include "dungeon_info.h"
 #include "dungeon_settings.h"
+#include <stddef.h>
 #include <unistd.h> //gets pid
 #include <stdio.h>
 #include <signal.h>
@@ -25,6 +26,7 @@ void barb_attack(int sig){
   }
 
 int main(void) {
+
   // https://man7.org/linux/man-pages/man3/shm_open.3.html
   // shm_open gives a file descriptor that represents a chunk of shared memory managed by the OS
   // First parameter specifies name of shared-memory object - we got it from dungeon_info.h
@@ -34,7 +36,7 @@ int main(void) {
   // If successful, shm_open returns a file descriptor(non-negative integer)
   // On failure, returns -1
   if (shm_fd == -1) {
-    perror("Failed to open dungeon");
+    perror("Barbarian failed to open dungeon");
     exit(1);
   }
 
@@ -50,8 +52,34 @@ int main(void) {
   // if mapping is successful, mmap returns a pointer to the mapped area.
   // If not successful, mmap returns the value MAP_FAILED( equal to (void *) -1)
   if (dungeon == MAP_FAILED) {
-    perror("Failed to map dungeon");
+    perror("Barbarian failed to map dungeon");
     exit(1);
   }
+
+  // https://pubs.opengroup.org/onlinepubs/007904875/functions/sigaction.html
+  // sigaction invokes a change in action taken by a process when they receive a specific signal
+  struct sigaction sa;
+
+  // sa_handler is the function that will run when the signal is caught
+  // Set it to the function we want to run when DUNGEON_SIGNAL arrives
+  sa.sa_handler = barb_attack;
+  // sa_mask defines any signals we want to block while inside the handler
+  // We call sigemptyset to start with no blocked signals
+  sigemptyset(&sa.sa_mask);
+  // sa_flags sets any special behavior (we don't need any special behavior, so set to 0)
+  sa.sa_flags = 0;
+
+  // If sigaction is successful it returns 0, otherwise -1 is returned
+  if (sigaction(DUNGEON_SIGNAL, &sa, 0) == -1) {
+    perror("Barbarian failed to receieve signal");
+    exit(1);
+    }
+
+    // Waits and does nothing until signal arrives.
+    // Needed so process stays alive for the duration of the dungeon game
+    // A signal from dungeon will "wake up" the process again
+   while (1){
+     pause();
+    }
   return 0;
       }
