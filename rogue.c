@@ -52,7 +52,10 @@ void rogue_signal(int sig) {
 			high = guess;
 		}
 		// Guess is correct
-		if (dungeon->trap.direction == '-' && dungeon->trap.locked == false)
+		if (dungeon->trap.direction == '-' && dungeon->trap.locked == false) {
+			// loop breaks iff the total time is reached or when the lock is successfully picked
+			break;
+		}
 
 	}
 }
