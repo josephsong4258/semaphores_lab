@@ -29,8 +29,33 @@ void decode_caesar(const char *input, char *output){
 		if (isupper(ch)) {
 			output[i-1] = (ch - 'A' - shift + 26) % 26 + 'A';
 		}
+		// Same but for lower case characters
 		else if (islower(ch)) {
 			output[i-1] = (ch - 'a' - shift + 26) % 26 + 'a';
+		}
+		// Everything else stays the same
+		else {
+			output[i-1] = ch;
+		}
+	}
+	// Cstrings must end with a null character
+	output[strlen(input) - 1] = '\0';
+}
+
+void wizard_signal(int sig) {
+	// Read encoded spell from barrier
+	const char *encoded = dungeon->barrier.spell;
+
+	// Decodes cipher and saves it to wizard's spell
+	decode_caesar(encoded, dungeon->wizard.spell);
+
+	sleep(SECONDS_TO_GUESS_BARRIER);
+
 int main (void) {
-  return 0;
+  	int shm_fd = shm_open(dungeon_shm_name, 0_RDWR, 0666);
+	if (shm_fd == -1) {
+    	perror("Barbarian failed to open dungeon");
+    	exit(1);
+	}
+	return 0;
   }
