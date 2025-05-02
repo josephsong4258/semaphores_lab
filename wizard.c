@@ -16,6 +16,7 @@ struct Dungeon *dungeon;
 // The first character is the shift key - lets us know how many letters the alphabet should shift by
 // Not too great with C so I used this resource to help me write the function https://www.scaler.com/topics/caesar-cipher-program-in-c/
 void decode_caesar(const char *input, char *output){
+	// First character is interpreted as it's ASCII numerical value - ex: 'T' =  84
 	int shift = input[0];
 
 	// Start at 1 since the 0th index is the shift key
@@ -25,13 +26,15 @@ void decode_caesar(const char *input, char *output){
 		// Then we subtract the number order with shift will give us ch's caesar order
 		// ex: [abc] shift of one -> [bcd].
 		// We add by 26 and do the modulus operator so we properly wrap around when we get negative values
+		// The shift can be greater than 26 since we're using the ASCII numerical value - we want to limit the range to [0, 25]
+		// Can do this by rolling again with the modulus operator with (shift % 26)
 		// Finally, + 'A' gives us the capital letter representation
 		if (isupper(ch)) {
-			output[i-1] = (ch - 'A' - shift + 26) % 26 + 'A';
+			output[i-1] = (ch - 'A' - (shift % 26) + 26) % 26 + 'A';
 		}
 		// Same but for lower case characters
 		else if (islower(ch)) {
-			output[i-1] = (ch - 'a' - shift + 26) % 26 + 'a';
+			output[i-1] = (ch - 'a' - (shift % 26) + 26) % 26 + 'a';
 		}
 		// Everything else stays the same
 		else {
