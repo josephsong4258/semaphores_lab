@@ -76,7 +76,7 @@ int main (void) {
     	exit(1);
     }
 
-   while (1){
+   while (dungeon->running){
      pause();
     }
 

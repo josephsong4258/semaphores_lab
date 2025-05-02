@@ -31,7 +31,7 @@ void rogue_signal(int sig) {
 	int time = 0;
 	int total = SECONDS_TO_PICK * 1000000;
 
-	while (time < total) {
+	while (time < total && dungeon->running) {
 		// Guess set to midpoint between low and high
 		guess = (low + high) / 2.0;
 
@@ -83,7 +83,7 @@ int main (void) {
     	exit(1);
     }
 
-   while (1){
+   while (dungeon->running){
      pause();
     }
 

@@ -78,7 +78,7 @@ int main(void) {
     // Waits and does nothing until signal arrives.
     // Needed so process stays alive for the duration of the dungeon game
     // A signal from dungeon will "wake up" the process again
-   while (1){
+   while (dungeon->running){
      pause();
     }
   return 0;
