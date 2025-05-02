@@ -71,7 +71,7 @@ int main(void) {
 
   // If sigaction is successful it returns 0, otherwise -1 is returned
   if (sigaction(DUNGEON_SIGNAL, &sa, 0) == -1) {
-    perror("Barbarian failed to receieve signal");
+    perror("Barbarian failed to set up signal");
     exit(1);
     }
 
