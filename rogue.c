@@ -14,8 +14,47 @@
 
 struct Dungeon *dungeon;
 
+// Attempts to guess the correct lock pick angle.
+// Makes a guess by writing a float value into dungeon->rogue.pick
+// After each guess, the dungeon responds by updating :
+// dungeon->trap.direction = 'u', 'd', or '-' (up, down, correct respectively)
+// dungeon->trap.locked = true or false (false means success)
+// Use binary search to find the angle
 void rogue_signal(int sig) {
+	// lowest possible angle is 0.0 degrees
+	float low = 0.0;
+	// highest possible angle is defined in dungeon settings
+	float high = MAX_PICK_ANGLE;
+	float guess;
 
+	// sleep uses seconds while usleep works on microseconds. 1 sec = 1,000,000 microseconds
+	int time = 0;
+	int total = SECONDS_TO_PICK * 1000000;
+
+	while (time < total) {
+		// Guess set to midpoint between low and high
+		guess = (low + high) / 2.0;
+
+		// Write guess into shared memory
+		dungeon->rogue.pick = guess;
+
+		// Wait X microseconds before checking for hint
+		usleep(TIME_BETWEEN_ROGUE_TICKS);
+		time += TIME_BETWEEN_ROGUE_TICKS;
+
+		// Read the hints from dungeon
+		// Guess was too low - need to shift the bottom of the search range up
+		if (dungeon->trap.direction == 'u') {
+			low = guess;
+		}
+		// Guess was too high - need to shift the top of search range down
+		if (dungeon->trap.direction == 'd') {
+			high = guess;
+		}
+		// Guess is correct
+		if (dungeon->trap.direction == '-' && dungeon->trap.locked == false)
+
+	}
 }
 
 
