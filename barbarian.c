@@ -28,6 +28,7 @@ void barb_attack(int sig){
   		// Sleep for amount of time it takes barbarian to attack
   		sleep(SECONDS_TO_ATTACK);
 	}
+
 	if (sig == SEMAPHORE_SIGNAL) {
 
 	}
