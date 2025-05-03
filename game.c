@@ -44,8 +44,34 @@ int main(void) {
 		perror("Game failed to open semaphore");
 		exit(1);
 	}
+
+	// fork() creates a new process by duplicating the current process
+	// In the child process - fork returns 0, in the parent process - child's PID
+	pid_t barbarian_pid = fork();
+	if (barbarian_pid == 0) {
+		// execl replaces the current process image with a new program
+		// chose execl here because we know the exact path ("./barbarian) and no extra arguments are needed
+		// ./barbarian represents the path to the executable file we want to run - 2nd parameter is mostly arbitrary - it is the processes' new name
+		// to play it safe we'll just name it barbarian
+		execl("./barbarian", "barbarian", NULL)
+		perror("Barbarian failed to fork")
+		exit(1);
+	}
+
+	pid_t wizard_pid = fork();
+	if (wizard_pid == 0) {
+		execl("./wizard", "wizard", NULL)
+		perror("Wizard failed to fork")
+		exit(1);
+	}
+
+	pid_t rogue_pid = fork();
+	if (rogue_pid == 0) {
+		execl("./rogue", "rogue", NULL)
+		perror("Rogue failed to fork")
+		exit(1);
+	}
 	// PID Represents the process ID - a unique identifier for each process
-    pid_t barbarian_pid, wizard_pid, rogue_pid;
     RunDungeon(wizard_pid, rogue_pid, barbarian_pid);
 
   return 0;
