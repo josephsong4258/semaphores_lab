@@ -11,6 +11,8 @@
 //should be responsible for calling fork and exec
 // Once all characters have launched, call RunDungeon using the pid's of the character classes that you launched.
 //  If something isn't set up right, you will likely see an appropriate error
+// After the characters reach the end of the dungeon, the door to the treasure room is opened by two levers(Semaphores) that are held by the Barbarian and Wizard
+// while the Rogue retrieves the treasure,
 int main(void) {
 	struct Dungeon *dungeon;
 	// To create shared memory 3 functions must be used - shm_open, ftruncate, and mmap
@@ -32,6 +34,16 @@ int main(void) {
     	exit(1);
 	}
 
+
+	dungeon->running = true;
+
+	// Initialize and open a named semaphore
+	sem_t *lever1 = sem_open(dungeon_lever_one, 0_CREATE, 0666, 0);
+	sem_t *lever2 = sem_open(dungeon_lever_one, 0_CREATE, 0666, 0);
+	if (lever1 == SEM_FAILED || lever2 == SEM_FAILED) {
+		perror("Game failed to open semaphore");
+		exit(1);
+	}
 	// PID Represents the process ID - a unique identifier for each process
     pid_t barbarian_pid, wizard_pid, rogue_pid;
     RunDungeon(wizard_pid, rogue_pid, barbarian_pid);
