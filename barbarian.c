@@ -9,20 +9,25 @@
 #include <fcntl.h> //O_RDWR
 #include <sys/stat.h> // 0666
 #include <stdlib.h>
+#include <semaphore.h>
 
 
 
 // Pointer to shared memory dungeon
 struct Dungeon *dungeon;
 
+sem_t *barbarian_lever = NULL;
+
 //Runs when the dungeon signals it's the Barbarians turn
 // It is successful if the barbarian's attack equals the enemy's healtth
 void barb_attack(int sig){
-  // Copy enemy's health value to barbarian's attack attribute to ensure success
-  dungeon->barbarian.attack = dungeon -> enemy.health;
+  if (sig == DUNGEON_SIGNAL) {
+  	// Copy enemy's health value to barbarian's attack attribute to ensure success
+  	dungeon->barbarian.attack = dungeon -> enemy.health;
 
-  // Sleep for amount of time it takes barbarian to attack
-  sleep(SECONDS_TO_ATTACK);
+  	// Sleep for amount of time it takes barbarian to attack
+  	sleep(SECONDS_TO_ATTACK);
+  }
   }
 
 int main(void) {

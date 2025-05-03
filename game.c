@@ -74,5 +74,18 @@ int main(void) {
 	// PID Represents the process ID - a unique identifier for each process
     RunDungeon(wizard_pid, rogue_pid, barbarian_pid);
 
-  return 0;
+	dungeon->running = false;
+
+	// Cushion so children can clean up
+	sleep(1);
+
+	// Clean up shared memory/semaphores
+	sem_close(lever1);
+	sem_close(lever2);
+	sem_unlink(dungeon_lever_one);
+	sem_unlink(dungeon_lever_two);
+	munmap(dungeon, sizeof(struct Dungeon));
+	shm_unlink(dungeon_shm_name);
+
+  	return 0;
   }
