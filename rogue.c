@@ -111,9 +111,13 @@ int main (void) {
     	perror("Rogue failed to set up signal");
     	exit(1);
     }
+  	if (sigaction(SEMAPHORE_SIGNAL, &sa, 0) == -1) {
+    	perror("Rogue failed to set up semaphore signal");
+    	exit(1);
+    }
 
-   while (dungeon->running){
-     pause();
+    while (dungeon->running){
+    	pause();
     }
 	sem_close(lever1);
 	sem_close(lever2);
