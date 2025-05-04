@@ -53,22 +53,22 @@ int main(void) {
 		// chose execl here because we know the exact path ("./barbarian) and no extra arguments are needed
 		// ./barbarian represents the path to the executable file we want to run - 2nd parameter is mostly arbitrary - it is the processes' new name
 		// to play it safe we'll just name it barbarian
-		execl("./barbarian", "barbarian", NULL)
-		perror("Barbarian failed to fork")
+		execl("./barbarian", "barbarian", NULL);
+		perror("Barbarian failed to fork");
 		exit(1);
 	}
 
 	pid_t wizard_pid = fork();
 	if (wizard_pid == 0) {
-		execl("./wizard", "wizard", NULL)
-		perror("Wizard failed to fork")
+		execl("./wizard", "wizard", NULL);
+		perror("Wizard failed to fork");
 		exit(1);
 	}
 
 	pid_t rogue_pid = fork();
 	if (rogue_pid == 0) {
-		execl("./rogue", "rogue", NULL)
-		perror("Rogue failed to fork")
+		execl("./rogue", "rogue", NULL);
+		perror("Rogue failed to fork");
 		exit(1);
 	}
 	// PID Represents the process ID - a unique identifier for each process

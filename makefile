@@ -9,24 +9,29 @@
 
 # This makefile is based off this resource - # https://www.cs.colby.edu/maxwell/courses/tutorials/maketutor/
 # First step, set the default C compiler
-CC = gcc
+nCC := gcc
+IDIR := .
 
-# places object files into obj folder
-ODIR = obj
 # CFLAGS variable sets compiler flags for gcc
 # -g gives debug information, -O0 makes sure the code doesn't get automatically optimized?
-CFLAGS = -g -O0
+CFLAGS := -g -O0 -I$(IDIR)
 
 # Don't know which libraries we're using yet so I'll leave blank
-LIBS = -
+LIBS := -lrt -pthread
 
 # Maps all header files to DEPS
-_DEPS = dungeon_info.h dungeon_settings.h
-DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
+_DEPS := dungeon_info.h dungeon_settings.h
+DEPS := $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 # Maps object files to OBJ
-_OBJ = game.o barbarian.o wizard.o rogue.o
-OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
+_OBJ := game.o barbarian.o wizard.o rogue.o
+OBJ := $(patsubst %,$(ODIR)/%,$(_OBJ))
+
+# Builds executables
+all: game barbarian wizard rogue
+
+$(ODIR):
+	mkdir -p $(ODIR)
 
 # compiles .c to object file
 $(ODIR)/%.o: %.c $(DEPS)
@@ -46,3 +51,7 @@ wizard: $(ODIR)/wizard.o
 rogue: $(ODIR)/rogue.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
+clean:
+	rm -rf $(ODIR)/*.o game barbarian wizard rogue
+
+.PHONY: all clean
