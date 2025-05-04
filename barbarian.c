@@ -65,6 +65,12 @@ int main(void) {
     exit(1);
   }
 
+  barbarian_lever = sem_open(dungeon_lever_one, 0);
+  if (barbarian_lever == SEM_FAILED) {
+      perror("Barbarian failed to press down lever");
+      exit(1);
+    }
+
   // https://pubs.opengroup.org/onlinepubs/007904875/functions/sigaction.html
   // sigaction invokes a change in action taken by a process when they receive a specific signal
   struct sigaction sa;
@@ -83,12 +89,19 @@ int main(void) {
     perror("Barbarian failed to set up signal");
     exit(1);
     }
+  if (sigaction(SEMAPHORE_SIGNAL, &sa, 0) == -1) {
+    perror("Barbarian failed to set up signal");
+    exit(1);
+  }
 
     // Waits and does nothing until signal arrives.
     // Needed so process stays alive for the duration of the dungeon game
     // A signal from dungeon will "wake up" the process again
-   while (dungeon->running){
+  while (dungeon->running){
      pause();
     }
+  sem_close(barbarian_lever);
+  munmap(dungeon, sizeof(struct Dungeon));
+
   return 0;
-      }
+}
