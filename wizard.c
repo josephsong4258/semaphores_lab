@@ -9,6 +9,9 @@
 #include <fcntl.h> //O_RDWR
 #include <sys/stat.h> // 0666
 #include <stdlib.h>
+#include <semaphore.h>
+#include <ctype.h>
+#include <string.h>
 
 struct Dungeon *dungeon;
 sem_t *wizard_lever = NULL;
@@ -65,7 +68,7 @@ void wizard_signal(int sig) {
 }
 int main (void) {
 	// Same stuff - taken from barbarian.c
-  	int shm_fd = shm_open(dungeon_shm_name, 0_RDWR, 0666);
+  	int shm_fd = shm_open(dungeon_shm_name, O_RDWR, 0666);
 	if (shm_fd == -1) {
     	perror("Wizard failed to open dungeon");
     	exit(1);

@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include <semaphore.h>
 
 struct Dungeon *dungeon;
 sem_t *lever1;
@@ -33,7 +34,6 @@ void rogue_signal(int sig) {
 	// sleep uses seconds while usleep works on microseconds. 1 sec = 1,000,000 microseconds
 	int time = 0;
 	int total = SECONDS_TO_PICK * 1000000;
-
 	while (time < total && dungeon->running) {
 		// Guess set to midpoint between low and high
 		guess = (low + high) / 2.0;
@@ -59,7 +59,6 @@ void rogue_signal(int sig) {
 			// loop breaks iff the total time is reached or when the lock is successfully picked
 			break;
 		}
-
 	}
   }
 	//Barb and Wizard have executed sem_wait() on their levers which holds the door open so the Rogue can enter
@@ -81,12 +80,13 @@ void rogue_signal(int sig) {
 		sem_post(lever1);
 		sem_post(lever2);
 		printf("Both levers have been released\n");
+	}
 }
 
 
 int main (void) {
 	// Same stuff - taken from barbarian.c
-  	int shm_fd = shm_open(dungeon_shm_name, 0_RDWR, 0666);
+  	int shm_fd = shm_open(dungeon_shm_name, O_RDWR, 0666);
 	if (shm_fd == -1) {
     	perror("Rogue failed to open dungeon");
     	exit(1);
@@ -123,4 +123,4 @@ int main (void) {
 	sem_close(lever2);
 	munmap(dungeon, sizeof(struct Dungeon));
 	return 0;
-  }
+ }

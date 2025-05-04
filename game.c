@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <signal.h>
 #include <semaphore.h>
+#include <stdlib.h>
 
 //should be responsible for calling fork and exec
 // Once all characters have launched, call RunDungeon using the pid's of the character classes that you launched.
@@ -18,9 +19,9 @@ int main(void) {
 	// To create shared memory 3 functions must be used - shm_open, ftruncate, and mmap
 	// Create shared memory for the Dungeon struct - this will be "consumed" by all other processes
 	// Note the O_CREAT flag compared to others that only have read/write
-	int shm_fd = shm_open(dungeon_shm_name, 0_CREAT | 0_RDWR, 0666);
+	int shm_fd = shm_open(dungeon_shm_name, O_CREAT | O_RDWR, 0666);
 	if (shm_fd == -1) {
-		perror("Game failed to open dungeon);
+		perror("Game failed to open dungeon");
 		exit(1);
 	}
 	// Set the size of shared memory object to Dungeon struct
@@ -28,7 +29,7 @@ int main(void) {
 		perror("Game failed to truncate dungeon");
 		exit(1);
 	}
-	dungeon = mmap(0, sizeof(struct Dungeon), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0)
+	dungeon = mmap(0, sizeof(struct Dungeon), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
 	if (dungeon == MAP_FAILED) {
     	perror("Game failed to map dungeon");
     	exit(1);
@@ -38,8 +39,8 @@ int main(void) {
 	dungeon->running = true;
 
 	// Initialize and open a named semaphore
-	sem_t *lever1 = sem_open(dungeon_lever_one, 0_CREATE, 0666, 0);
-	sem_t *lever2 = sem_open(dungeon_lever_one, 0_CREATE, 0666, 0);
+	sem_t *lever1 = sem_open(dungeon_lever_one, O_CREAT, 0666, 0);
+	sem_t *lever2 = sem_open(dungeon_lever_two, O_CREAT, 0666, 0);
 	if (lever1 == SEM_FAILED || lever2 == SEM_FAILED) {
 		perror("Game failed to open semaphore");
 		exit(1);

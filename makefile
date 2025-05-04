@@ -9,8 +9,9 @@
 
 # This makefile is based off this resource - # https://www.cs.colby.edu/maxwell/courses/tutorials/maketutor/
 # First step, set the default C compiler
-nCC := gcc
+CC := gcc
 IDIR := .
+ODIR := obj
 
 # CFLAGS variable sets compiler flags for gcc
 # -g gives debug information, -O0 makes sure the code doesn't get automatically optimized?
@@ -34,7 +35,7 @@ $(ODIR):
 	mkdir -p $(ODIR)
 
 # compiles .c to object file
-$(ODIR)/%.o: %.c $(DEPS)
+$(ODIR)/%.o: %.c $(DEPS) | $(ODIR)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 #links game executable to dungeon.o
