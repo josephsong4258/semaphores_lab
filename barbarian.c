@@ -28,11 +28,12 @@ void barb_attack(int sig){
   		// Sleep for amount of time it takes barbarian to attack
   		sleep(SECONDS_TO_ATTACK);
 	}
-
+  // Holds lever by waiting on semaphore
 	if (sig == SEMAPHORE_SIGNAL) {
-
+    sem_wait(barbarian_lever);
 	}
-  }
+
+}
 
 int main(void) {
 

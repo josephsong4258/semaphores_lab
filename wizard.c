@@ -11,6 +11,7 @@
 #include <stdlib.h>
 
 struct Dungeon *dungeon;
+sem_t *wizard_lever = NULL;
 
 // Decodes the Caesar Cipher placed in the Barrier's spell field.
 // The first character is the shift key - lets us know how many letters the alphabet should shift by
@@ -46,14 +47,22 @@ void decode_caesar(const char *input, char *output){
 }
 
 void wizard_signal(int sig) {
-	// Read encoded spell from barrier
+	if (sig == DUNGEON_SIGNAL) {
+
+    // Read encoded spell from barrier
 	const char *encoded = dungeon->barrier.spell;
 
 	// Decodes cipher and saves it to wizard's spell
 	decode_caesar(encoded, dungeon->wizard.spell);
 
 	sleep(SECONDS_TO_GUESS_BARRIER);
+  }
 
+    // Holds lever by waiting on semaphore
+	if (sig == SEMAPHORE_SIGNAL) {
+      sem_wait(wizard_lever);
+	}
+}
 int main (void) {
 	// Same stuff - taken from barbarian.c
   	int shm_fd = shm_open(dungeon_shm_name, 0_RDWR, 0666);
@@ -66,7 +75,13 @@ int main (void) {
     	perror("Wizard failed to map dungeon");
     	exit(1);
   }
-	struct sigaction sa;
+    wizard_lever = sem_open(dungeon_lever_two, 0);
+    if (wizard_lever == SEM_FAILED) {
+      perror("Wizard failed to hold down lever");
+      exit(1);
+    }
+
+    struct sigaction sa;
   	sa.sa_handler = wizard_signal;
   	sigemptyset(&sa.sa_mask);
   	sa.sa_flags = 0;
@@ -75,10 +90,15 @@ int main (void) {
     	perror("Wizard failed to set up signal");
     	exit(1);
     }
-
+    if (sigaction(SEMAPHORE_SIGNAL, &sa, 0) == -1) {
+        perror("Wizard failed to set up semaphore signal");
+        exit(1);
+    }
    while (dungeon->running){
      pause();
     }
 
+    sem_close(wizard_lever);
+    munmap(dungeon, sizeof(struct Dungeon));
 	return 0;
   }
