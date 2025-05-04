@@ -13,6 +13,8 @@
 #include <math.h>
 
 struct Dungeon *dungeon;
+sem_t *lever1;
+sem_t *lever2;
 
 // Attempts to guess the correct lock pick angle.
 // Makes a guess by writing a float value into dungeon->rogue.pick
@@ -21,6 +23,7 @@ struct Dungeon *dungeon;
 // dungeon->trap.locked = true or false (false means success)
 // Use binary search to find the angle
 void rogue_signal(int sig) {
+	if (sig == DUNGEON_SIGNAL) {
 	// lowest possible angle is 0.0 degrees
 	float low = 0.0;
 	// highest possible angle is defined in dungeon settings
@@ -58,6 +61,26 @@ void rogue_signal(int sig) {
 		}
 
 	}
+  }
+	//Barb and Wizard have executed sem_wait() on their levers which holds the door open so the Rogue can enter
+	if (sig == SEMAPHORE_SIGNAL) {
+		printf("Rogue has entered the treasure room\n");
+		// Read exactly 4 treasure characters - dungeon writes one at a time
+		int count = 0;
+		while (count < 4 && dungeon->running) {
+			char c = dungeon->treasure[count];
+			if (c != '\0') {
+				// Copy each letter into spoils
+				dungeon->spoils[count] = c;
+				printf("Rogue got treasure letter %c\n", c);
+				count++;
+			}
+		}
+		printf("Rogue has collected all 4 treasures\n");
+		//Release both semaphores
+		sem_post(lever1);
+		sem_post(lever2);
+		printf("Both levers have been released\n");
 }
 
 
@@ -73,6 +96,12 @@ int main (void) {
     	perror("Rogue failed to map dungeon");
     	exit(1);
   }
+	lever1 = sem_open(dungeon_lever_one, 0);
+	lever2 = sem_open(dungeon_lever_two, 0);
+	if (lever1 == SEM_FAILED || lever2 == SEM_FAILED) {
+		perror("Rogue sem_open failed");
+		exit(1);
+	}
 	struct sigaction sa;
   	sa.sa_handler = rogue_signal;
   	sigemptyset(&sa.sa_mask);
@@ -86,6 +115,8 @@ int main (void) {
    while (dungeon->running){
      pause();
     }
-
+	sem_close(lever1);
+	sem_close(lever2);
+	munmap(dungeon, sizeof(struct Dungeon));
 	return 0;
   }
