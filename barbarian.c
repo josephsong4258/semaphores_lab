@@ -45,10 +45,7 @@ int main(void) {
   int shm_fd = shm_open(dungeon_shm_name, O_RDWR, 0666);
   // If successful, shm_open returns a file descriptor(non-negative integer)
   // On failure, returns -1
-  if (shm_fd == -1) {
-    perror("Barbarian failed to open dungeon");
-    exit(1);
-  }
+
 
   // https://man7.org/linux/man-pages/man2/mmap.2.html
   // mmap maps the shared memory object into the process's virtual memory
@@ -61,16 +58,8 @@ int main(void) {
   dungeon = mmap(0, sizeof(struct Dungeon), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
   // if mapping is successful, mmap returns a pointer to the mapped area.
   // If not successful, mmap returns the value MAP_FAILED( equal to (void *) -1)
-  if (dungeon == MAP_FAILED) {
-    perror("Barbarian failed to map dungeon");
-    exit(1);
-  }
 
   barbarian_lever = sem_open(dungeon_lever_one, 0);
-  if (barbarian_lever == SEM_FAILED) {
-      perror("Barbarian failed to press down lever");
-      exit(1);
-    }
 
   // https://pubs.opengroup.org/onlinepubs/007904875/functions/sigaction.html
   // sigaction invokes a change in action taken by a process when they receive a specific signal
