@@ -84,16 +84,8 @@ int main(void) {
   sigemptyset(&sa.sa_mask);
   // sa_flags sets any special behavior (we don't need any special behavior, so set to 0)
   sa.sa_flags = 0;
-
-  // If sigaction is successful it returns 0, otherwise -1 is returned
-  if (sigaction(DUNGEON_SIGNAL, &sa, 0) == -1) {
-    perror("Barbarian failed to set up signal");
-    exit(1);
-    }
-  if (sigaction(SEMAPHORE_SIGNAL, &sa, 0) == -1) {
-    perror("Barbarian failed to set up signal");
-    exit(1);
-  }
+  sigaction(DUNGEON_SIGNAL, &sa, 0);
+  sigaction(SEMAPHORE_SIGNAL, &sa, 0);
 
     // Waits and does nothing until signal arrives.
     // Needed so process stays alive for the duration of the dungeon game
