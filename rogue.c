@@ -23,9 +23,6 @@ sem_t *lever2;
 // dungeon->trap.direction = 'u', 'd', or '-' (up, down, correct respectively)
 // dungeon->trap.locked = true or false (false means success)
 // Use binary search to find the angle
-
-
-
 void rogue_signal(int sig) {
 	if (sig == DUNGEON_SIGNAL) {
 	// lowest possible angle is 0.0 degrees
@@ -37,6 +34,7 @@ void rogue_signal(int sig) {
 	int time = 0;
 	int total = SECONDS_TO_PICK * 1000000;
 	while (time < total && dungeon->running) {
+		usleep(TIME_BETWEEN_ROGUE_TICKS);
 		// Guess set to midpoint between low and high
 		float guess = (low + high) / 2.0f;
 
@@ -47,19 +45,20 @@ void rogue_signal(int sig) {
 		usleep(TIME_BETWEEN_ROGUE_TICKS);
 		time += TIME_BETWEEN_ROGUE_TICKS;
 
+		// Guess is correct
+		if (dungeon->trap.direction == '-' && dungeon->trap.locked == false) {
+			// loop breaks iff the total time is reached or when the lock is successfully picked
+			break;
+		}
+
 		// Read the hints from dungeon
 		// Guess was too low - need to shift the bottom of the search range up
 		if (dungeon->trap.direction == 'u') {
 			low = guess;
 		}
 		// Guess was too high - need to shift the top of search range down
-		if (dungeon->trap.direction == 'd') {
+		else if (dungeon->trap.direction == 'd') {
 			high = guess;
-		}
-		// Guess is correct
-		if (dungeon->trap.locked == false) {
-			// loop breaks iff the total time is reached or when the lock is successfully picked
-			break;
 		}
 	}
   }
@@ -89,6 +88,10 @@ void rogue_signal(int sig) {
 int main (void) {
 	// Same stuff - taken from barbarian.c
   	int shm_fd = shm_open(dungeon_shm_name, O_RDWR, 0666);
+	if (shm_fd < 0) {
+    	printf("Rogue process running without shared memory\n");
+	 	return 0;
+	}
 	dungeon = mmap(0, sizeof(struct Dungeon), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
 	lever1 = sem_open(dungeon_lever_one, 0);
 	lever2 = sem_open(dungeon_lever_two, 0);
@@ -96,9 +99,9 @@ int main (void) {
 	struct sigaction sa;
   	sa.sa_handler = rogue_signal;
   	sigemptyset(&sa.sa_mask);
-  	sa.sa_flags = 0;
-    sigaction(DUNGEON_SIGNAL, &sa, 0);
-    sigaction(SEMAPHORE_SIGNAL, &sa, 0);
+  	sa.sa_flags = SA_NODEFER;
+    sigaction(DUNGEON_SIGNAL, &sa, NULL);
+    sigaction(SEMAPHORE_SIGNAL, &sa, NULL);
 
     printf("Rogue process running");
     while (dungeon->running){

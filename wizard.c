@@ -69,6 +69,10 @@ void wizard_signal(int sig) {
 int main (void) {
 	// Same stuff - taken from barbarian.c
   	int shm_fd = shm_open(dungeon_shm_name, O_RDWR, 0666);
+	if (shm_fd < 0) {
+    	printf("Wizard process running without shared memory\n");
+	 	return 0;
+	}
 
 	dungeon = mmap(0, sizeof(struct Dungeon), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
 

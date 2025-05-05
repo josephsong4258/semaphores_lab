@@ -78,7 +78,7 @@ int main(void) {
 	dungeon->running = false;
 
 	// Cushion so children can clean up
-	sleep(1);
+	sleep(3);
 
 	// Clean up shared memory/semaphores
 	sem_close(lever1);

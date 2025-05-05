@@ -45,6 +45,10 @@ int main(void) {
   int shm_fd = shm_open(dungeon_shm_name, O_RDWR, 0666);
   // If successful, shm_open returns a file descriptor(non-negative integer)
   // On failure, returns -1
+  if (shm_fd < 0) {
+     printf("Barbarian process running without shared memory\n");
+	 return 0;
+	}
 
 
   // https://man7.org/linux/man-pages/man2/mmap.2.html
@@ -71,8 +75,9 @@ int main(void) {
   // sa_mask defines any signals we want to block while inside the handler
   // We call sigemptyset to start with no blocked signals
   sigemptyset(&sa.sa_mask);
-  // sa_flags sets any special behavior (we don't need any special behavior, so set to 0)
-  sa.sa_flags = 0;
+  // sa_flags sets any special behavior Allows the same signal to interrupt a running handler,
+  // so the next Barbarian turn can start even while the previous one is still sleeping.
+  sa.sa_flags = SA_NODEFER;
   sigaction(DUNGEON_SIGNAL, &sa, 0);
   sigaction(SEMAPHORE_SIGNAL, &sa, 0);
 
