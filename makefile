@@ -25,7 +25,8 @@ _DEPS := dungeon_info.h dungeon_settings.h
 DEPS := $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 # Maps object files to OBJ
-_OBJ := game.o barbarian.o wizard.o rogue.o
+SRCS := game.c barbarian.c wizard.c rogue.c
+_OBJ := $(SRCS:.c=.o)
 OBJ := $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 # Builds executables
@@ -35,8 +36,10 @@ $(ODIR):
 	mkdir -p $(ODIR)
 
 # compiles .c to object file
+# $< is the “first prerequisite” (the .c source file)
+# $@ is the “target” (the obj/whatever.o file)
 $(ODIR)/%.o: %.c $(DEPS) | $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 #links game executable to dungeon.o
 game: $(ODIR)/game.o dungeon.o
@@ -52,6 +55,7 @@ wizard: $(ODIR)/wizard.o
 rogue: $(ODIR)/rogue.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
+# helps remove all .o files and executables so we can make fresh runs in
 clean:
 	rm -rf $(ODIR)/*.o game barbarian wizard rogue
 

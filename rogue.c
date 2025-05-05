@@ -23,20 +23,22 @@ sem_t *lever2;
 // dungeon->trap.direction = 'u', 'd', or '-' (up, down, correct respectively)
 // dungeon->trap.locked = true or false (false means success)
 // Use binary search to find the angle
+
+
+
 void rogue_signal(int sig) {
 	if (sig == DUNGEON_SIGNAL) {
 	// lowest possible angle is 0.0 degrees
 	float low = 0.0;
 	// highest possible angle is defined in dungeon settings
 	float high = MAX_PICK_ANGLE;
-	float guess;
 
 	// sleep uses seconds while usleep works on microseconds. 1 sec = 1,000,000 microseconds
 	int time = 0;
 	int total = SECONDS_TO_PICK * 1000000;
 	while (time < total && dungeon->running) {
 		// Guess set to midpoint between low and high
-		guess = (low + high) / 2.0;
+		float guess = (low + high) / 2.0f;
 
 		// Write guess into shared memory
 		dungeon->rogue.pick = guess;
@@ -55,7 +57,7 @@ void rogue_signal(int sig) {
 			high = guess;
 		}
 		// Guess is correct
-		if (dungeon->trap.direction == '-' && dungeon->trap.locked == false) {
+		if (dungeon->trap.locked == false) {
 			// loop breaks iff the total time is reached or when the lock is successfully picked
 			break;
 		}
@@ -87,35 +89,18 @@ void rogue_signal(int sig) {
 int main (void) {
 	// Same stuff - taken from barbarian.c
   	int shm_fd = shm_open(dungeon_shm_name, O_RDWR, 0666);
-	if (shm_fd == -1) {
-    	perror("Rogue failed to open dungeon");
-    	exit(1);
-	}
 	dungeon = mmap(0, sizeof(struct Dungeon), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
-  	if (dungeon == MAP_FAILED) {
-    	perror("Rogue failed to map dungeon");
-    	exit(1);
-  }
 	lever1 = sem_open(dungeon_lever_one, 0);
 	lever2 = sem_open(dungeon_lever_two, 0);
-	if (lever1 == SEM_FAILED || lever2 == SEM_FAILED) {
-		perror("Rogue sem_open failed");
-		exit(1);
-	}
+
 	struct sigaction sa;
   	sa.sa_handler = rogue_signal;
   	sigemptyset(&sa.sa_mask);
   	sa.sa_flags = 0;
+    sigaction(DUNGEON_SIGNAL, &sa, 0)
+    sigaction(SEMAPHORE_SIGNAL, &sa, 0)
 
-  	if (sigaction(DUNGEON_SIGNAL, &sa, 0) == -1) {
-    	perror("Rogue failed to set up signal");
-    	exit(1);
-    }
-  	if (sigaction(SEMAPHORE_SIGNAL, &sa, 0) == -1) {
-    	perror("Rogue failed to set up semaphore signal");
-    	exit(1);
-    }
-
+    printf("Rogue process running");
     while (dungeon->running){
     	pause();
     }
