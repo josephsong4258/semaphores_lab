@@ -55,13 +55,10 @@ void rogue_signal(int sig) {
 
 			// Read the hints from dungeon
 			// Guess was too low - need to shift the bottom of the search range up
-			// Sometimes the pick stays stuck at an angle - even after multiple loops
-			// I'll try to force it to move a direction by using the function nextafterf
 			if (dungeon->trap.direction == 'u') {
 					low = guess;
 			}
 			// Guess was too high - need to shift the top of search range down
-			// Apply the same fix if it gets stuck
 			if (dungeon->trap.direction == 'd') {
 					high = guess;
 		}

@@ -24,13 +24,12 @@ void barb_attack(int sig){
 	if (sig == DUNGEON_SIGNAL) {
   		// Copy enemy's health value to barbarian's attack attribute to ensure success
   		dungeon->barbarian.attack = dungeon -> enemy.health;
-
   		// Sleep for amount of time it takes barbarian to attack
   		sleep(SECONDS_TO_ATTACK);
 	}
   // Holds lever by waiting on semaphore
 	if (sig == SEMAPHORE_SIGNAL) {
-    sem_wait(barbarian_lever);
+		sem_wait(barbarian_lever);
 	}
 
 }
