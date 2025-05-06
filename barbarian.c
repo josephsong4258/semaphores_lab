@@ -84,7 +84,7 @@ int main(void) {
     // Waits and does nothing until signal arrives.
     // Needed so process stays alive for the duration of the dungeon game
     // A signal from dungeon will "wake up" the process again
-  printf("Barbarian process running");
+	
   while (dungeon->running){
      pause();
     }
