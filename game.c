@@ -72,13 +72,14 @@ int main(void) {
 		perror("Rogue failed to fork");
 		exit(1);
 	}
+	sleep(3);
 	// PID Represents the process ID - a unique identifier for each process
     RunDungeon(wizard_pid, rogue_pid, barbarian_pid);
 
 	dungeon->running = false;
 
 	// Cushion so children can clean up
-	sleep(3);
+	usleep(500);
 
 	// Clean up shared memory/semaphores
 	sem_close(lever1);
