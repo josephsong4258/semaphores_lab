@@ -82,8 +82,8 @@ int main (void) {
   	sa.sa_handler = wizard_signal;
   	sigemptyset(&sa.sa_mask);
   	sa.sa_flags = 0;
-    sigaction(DUNGEON_SIGNAL, &sa, 0);
-    sigaction(SEMAPHORE_SIGNAL, &sa, 0);
+    sigaction(DUNGEON_SIGNAL, &sa, NULL);
+    sigaction(SEMAPHORE_SIGNAL, &sa, NULL);
 
     while (dungeon->running){
       pause();

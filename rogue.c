@@ -35,7 +35,7 @@ void rogue_signal(int sig) {
 		int time = 0;
 		int total = SECONDS_TO_PICK * 1000000;
 
-		while (time < total || dungeon->running) {
+		while (dungeon->running || time < total) {
 
 			// Guess set to midpoint between low and high
 			float guess = (low + high) / 2.0f;
@@ -46,9 +46,6 @@ void rogue_signal(int sig) {
 			// Wait for guess to register
 			usleep(TIME_BETWEEN_ROGUE_TICKS);
 			time += TIME_BETWEEN_ROGUE_TICKS;
-			if (time >= total || dungeon->running == false) {
-				break;
-			}
 		
 			// Guess is correct
 			if (dungeon->trap.direction == '-' && dungeon->trap.locked == false) {
@@ -61,22 +58,12 @@ void rogue_signal(int sig) {
 			// Sometimes the pick stays stuck at an angle - even after multiple loops
 			// I'll try to force it to move a direction by using the function nextafterf
 			if (dungeon->trap.direction == 'u') {
-				if (guess == low) {
-					low = nextafterf(guess, high);
-				}
-				else {
 					low = guess;
-				}
 			}
 			// Guess was too high - need to shift the top of search range down
 			// Apply the same fix if it gets stuck
 			if (dungeon->trap.direction == 'd') {
-				if (guess == high) {
-					high = nextafterf(guess, low);
-					}
-				else {
 					high = guess;
-					}
 		}
 	}
   }

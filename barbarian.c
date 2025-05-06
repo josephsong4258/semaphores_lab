@@ -77,9 +77,9 @@ int main(void) {
   sigemptyset(&sa.sa_mask);
   // sa_flags sets any special behavior Allows the same signal to interrupt a running handler,
   // so the next Barbarian turn can start even while the previous one is still sleeping.
-  sa.sa_flags = SA_NODEFER;
-  sigaction(DUNGEON_SIGNAL, &sa, 0);
-  sigaction(SEMAPHORE_SIGNAL, &sa, 0);
+  sa.sa_flags = 0;
+  sigaction(DUNGEON_SIGNAL, &sa, NULL);
+  sigaction(SEMAPHORE_SIGNAL, &sa, NULL);
 
     // Waits and does nothing until signal arrives.
     // Needed so process stays alive for the duration of the dungeon game

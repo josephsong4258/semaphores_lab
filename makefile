@@ -18,7 +18,7 @@ ODIR := obj
 CFLAGS := -g -O0 -lm -I$(IDIR)
 
 # Don't know which libraries we're using yet so I'll leave blank
-LIBS := -lrt -pthread
+LIBS := -lrt -pthread -lpthread
 
 # Maps all header files to DEPS
 _DEPS := dungeon_info.h dungeon_settings.h
