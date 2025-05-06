@@ -85,7 +85,6 @@ int main (void) {
     sigaction(DUNGEON_SIGNAL, &sa, 0);
     sigaction(SEMAPHORE_SIGNAL, &sa, 0);
 
-    printf("Wizard process running");
     while (dungeon->running){
       pause();
      }
