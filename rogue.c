@@ -103,7 +103,6 @@ int main (void) {
     sigaction(DUNGEON_SIGNAL, &sa, NULL);
     sigaction(SEMAPHORE_SIGNAL, &sa, NULL);
 
-    printf("Rogue process running");
     while (dungeon->running){
     	pause();
     }
