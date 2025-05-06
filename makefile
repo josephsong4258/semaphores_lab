@@ -15,7 +15,7 @@ ODIR := obj
 
 # CFLAGS variable sets compiler flags for gcc
 # -g gives debug information, -O0 makes sure the code doesn't get automatically optimized?
-CFLAGS := -g -O0 -I$(IDIR)
+CFLAGS := -g -O0 -lm -I$(IDIR)
 
 # Don't know which libraries we're using yet so I'll leave blank
 LIBS := -lrt -pthread

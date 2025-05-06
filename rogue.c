@@ -12,7 +12,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <semaphore.h>
-#include <cmath>
+
 
 struct Dungeon *dungeon;
 sem_t *lever1;
@@ -25,57 +25,59 @@ sem_t *lever2;
 // dungeon->trap.locked = true or false (false means success)
 // Use binary search to find the angle
 void rogue_signal(int sig) {
-	if (sig == DUNGEON_SIGNAL) {
-	// lowest possible angle is 0.0 degrees
-	float low = 0.0;
-	// highest possible angle is defined in dungeon settings
-	float high = MAX_PICK_ANGLE;
+    if (sig == DUNGEON_SIGNAL) {
+		// lowest possible angle is 0.0 degrees
+		float low = 0.0;
+		// highest possible angle is defined in dungeon settings
+		float high = MAX_PICK_ANGLE;
 
-	// sleep uses seconds while usleep works on microseconds. 1 sec = 1,000,000 microseconds
-	int time = 0;
-	int total = SECONDS_TO_PICK * 1000000;
-	while (time < total || dungeon->running) {
+		// sleep uses seconds while usleep works on microseconds. 1 sec = 1,000,000 microseconds
+		int time = 0;
+		int total = SECONDS_TO_PICK * 1000000;
 
-		// Guess set to midpoint between low and high
-		float guess = (low + high) / 2.0f;
+		while (time < total || dungeon->running) {
 
-		// Write guess into shared memory
-		dungeon->rogue.pick = guess;
+			// Guess set to midpoint between low and high
+			float guess = (low + high) / 2.0f;
 
-		// Wait for guess to register
-		usleep(TIME_BETWEEN_ROGUE_TICKS);
-		time += TIME_BETWEEN_ROGUE_TICKS;
-		if (time >= total || dungeon->running == false {
-			break;
-		}
+			// Write guess into shared memory
+			dungeon->rogue.pick = guess;
+
+			// Wait for guess to register
+			usleep(TIME_BETWEEN_ROGUE_TICKS);
+			time += TIME_BETWEEN_ROGUE_TICKS;
+			if (time >= total || dungeon->running == false) {
+				break;
+			}
 		
-		// Guess is correct
-		if (dungeon->trap.direction == '-' && dungeon->trap.locked == false) {
-			// loop breaks iff the total time is reached or when the lock is successfully picked
-			break;
-		}
+			// Guess is correct
+			if (dungeon->trap.direction == '-' && dungeon->trap.locked == false) {
+				// loop breaks iff the total time is reached or when the lock is successfully picked
+				break;
+			}
 
-		// Read the hints from dungeon
-		// Guess was too low - need to shift the bottom of the search range up
-		// Sometimes the pick stays stuck at an angle - even after multiple loops
-		// I'll try to force it to move a direction by using the function nextafterf
-		if (dungeon->trap.direction == 'u') {
-			if (guess == low) {
-				low = nextafterf(guess, high)
+			// Read the hints from dungeon
+			// Guess was too low - need to shift the bottom of the search range up
+			// Sometimes the pick stays stuck at an angle - even after multiple loops
+			// I'll try to force it to move a direction by using the function nextafterf
+			if (dungeon->trap.direction == 'u') {
+				if (guess == low) {
+					low = nextafterf(guess, high);
 				}
-			else {
-			low = guess;
+				else {
+					low = guess;
 				}
+			}
+			// Guess was too high - need to shift the top of search range down
+			// Apply the same fix if it gets stuck
+			if (dungeon->trap.direction == 'd') {
+				if (guess == high) {
+					high = nextafterf(guess, low);
+					}
+				else {
+					high = guess;
+					}
 		}
-		// Guess was too high - need to shift the top of search range down
-		// Apply the same fix if it gets stuck
-		if (dungeon->trap.direction == 'd') {
-			if (guess == high) {
-				high = nextafterf(guess, low)
-				}
-			else {
-			high = guess;
-				}
 	}
   }
 	//Barb and Wizard have executed sem_wait() on their levers which holds the door open so the Rogue can enter
