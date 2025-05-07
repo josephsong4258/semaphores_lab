@@ -38,7 +38,8 @@ void rogue_signal(int sig) {
 		while (time < total && dungeon->running) {
 
 			// Guess set to midpoint between low and high
-			float guess = (low + high) / 2.0f;
+			float guess = low + (high-low)/ 2.0f;
+
 
 			// Write guess into shared memory
 			dungeon->rogue.pick = guess;
@@ -75,6 +76,7 @@ void rogue_signal(int sig) {
 					high = guess;
 					}
 		}
+			else {}
 	}
   }
 	//Barb and Wizard have executed sem_wait() on their levers which holds the door open so the Rogue can enter
@@ -114,7 +116,7 @@ int main (void) {
 	struct sigaction sa;
   	sa.sa_handler = rogue_signal;
   	sigemptyset(&sa.sa_mask);
-  	sa.sa_flags = SA_NODEFER;
+  	sa.sa_flags = 0;
     sigaction(DUNGEON_SIGNAL, &sa, NULL);
     sigaction(SEMAPHORE_SIGNAL, &sa, NULL);
 
