@@ -117,7 +117,7 @@ int main (void) {
 	struct sigaction sa;
   	sa.sa_handler = rogue_signal;
   	sigemptyset(&sa.sa_mask);
-  	sa.sa_flags = 0;
+  	sa.sa_flags = SA_NODEFER;
     sigaction(DUNGEON_SIGNAL, &sa, NULL);
     sigaction(SEMAPHORE_SIGNAL, &sa, NULL);
 
